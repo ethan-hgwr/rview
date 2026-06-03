@@ -1,33 +1,48 @@
-# rview the terminal 3D rasterizer 🎨🖥️
+# rview
 
-![project demo](./gif/teapot_compressed.gif)
+<div align="center">
+  <img alt="Utah teapot demo" src="gif/teapot_compressed.gif" height="50%" width="50%">
+</div>
 
-A simple Rust software rasterizer that renders 3D models like cubes or .obj files as ASCII art right in your terminal. It covers:
+A software rasterizer written in Rust that renders `.obj` models as ASCII art directly in your terminal.
 
-- 3D transformations (scale, rotate, translate)
+## Features
+
+- 3D transformations: scale, rotate, translate
 - Perspective projection
 - Triangle rasterization
-- Basic lighting for shading 🌞
+- Diffuse lighting based on face normals, tied to the camera position
 
-### How to use
+## Usage
 
-1. Load or create a 3D object  
-2. Run the program
-3. **Drag the mouse** to rotate the camera 🔄
-4. **Scroll wheel** to zoom in/out 🔍
-5. Press **C** to quit ✌️
+> [!IMPORTANT]
+> Only works with triangulated models!
 
-### What’s inside?
+```bash
+cargo run --release -- <path/to/model.obj>
+```
 
-- Matrix math with **glam**
-- Triangle rasterization with ASCII shading
-- Lighting based on face normals and a light source that follows the camera
+| Control | Actions |
+|---|---|
+| Mouse drag | Rotate camera |
+| Scroll up/down | Zoom in/out |
+| `C` | Quit |
 
-### Earlier demo
+## Build With
 
-![earlier project demo](./gif/demo_compressed.gif)
+- [`rust`](https://rust-lang.org/) - Language
+- [`crossterm`](https://github.com/crossterm-rs/crossterm) - cross-platform terminal manipulation (input events, cursor, rendering)
+- [`glam`](https://github.com/bitshifter/glam-rs) - SIMD-accelerated linear algebra (vectors, matrices)
+- [`obj-rs`](https://github.com/simnalamburt/obj-rs) - `.obj` file parsing
+- [`clap`](https://github.com/clap-rs/clap) - command-line argument parsing
+- [`anyhow`](https://github.com/dtolnay/anyhow) - ergonomic error handling
+- [`rayon`](https://github.com/rayon-rs/rayon) - data-parallel vertex processing
 
-### Sources
+## Assets
 
-- Utah teapot : [https://sketchfab.com/3d-models/utah-teapot-92f31e2028244c4b8ef6cbc07738aee5](https://sketchfab.com/3d-models/utah-teapot-92f31e2028244c4b8ef6cbc07738aee5)
-- Suzanne : Blender
+- **Utah Teapot**: [Sketchfab](https://sketchfab.com/3d-models/utah-teapot-92f31e2028244c4b8ef6cbc07738aee5)
+- **Suzanne**: Blender
+
+## License
+
+This project is licensed under the GNU GPLv3 License - see the [COPYING.md](COPYING.md) file for details
