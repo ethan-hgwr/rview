@@ -5,10 +5,11 @@ use std::{
 
 use glam::{Mat4, Quat, Vec3, Vec3A, Vec4};
 use obj::{Obj, Vertex, load_obj};
+use rayon::prelude::*;
 
-use crate::{Face, MIN_CAM_DISTANCE, Pos4, model::Model};
+use crate::{MIN_CAM_DISTANCE, model::Model, types::Face, types::Pos4};
 
-const EPSILON: f32 = 0.01;
+const SIGMA: f32 = 0.99;
 
 pub fn load(
     file_name: &str,
@@ -20,24 +21,25 @@ pub fn load(
     let model: Obj<Vertex, u32> = load_obj(input).map_err(io::Error::other)?;
 
     if !model.indices.len().is_multiple_of(3) {
-        return Err(io::Error::other("indices are not a multiple of 3"));
+        return Err(io::Error::other(
+            "indices are not a multiple of 3. Please triangulate your model.",
+        ));
     }
 
     let size = model.vertices.len();
     let mut vertex = Vec::with_capacity(size);
     let mut normals = Vec::with_capacity(size);
 
-    let max_len_sq = model
+    let Some(max_len_sq) = model
         .vertices
-        .iter()
-        .map(|v| {
-            let p = Vec3A::from_array(v.position);
-            p.length_squared()
-        })
-        .reduce(f32::max)
-        .ok_or(io::Error::other("model has no vertices"))?;
+        .par_iter()
+        .map(|v| Vec3A::from_array(v.position).length_squared())
+        .max_by(|x, y| x.total_cmp(y))
+    else {
+        return Err(io::Error::other("Couldn't compute the max vertex."));
+    };
 
-    let factor = (MIN_CAM_DISTANCE - EPSILON) / max_len_sq.sqrt();
+    let factor = (MIN_CAM_DISTANCE * SIGMA) / max_len_sq.sqrt();
 
     for v in &model.vertices {
         let pos = Vec3A::from_array(v.position) * factor;
