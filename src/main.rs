@@ -1,5 +1,5 @@
 use anyhow::{Context, Result};
-use clap::{Parser, arg};
+use clap::Parser;
 use crossterm::{
     cursor::{Hide, Show},
     event::{
@@ -9,14 +9,15 @@ use crossterm::{
     execute,
     terminal::{
         EnterAlternateScreen, LeaveAlternateScreen, SetTitle, disable_raw_mode, enable_raw_mode,
+        size,
     },
 };
-use glam::{Quat, Vec2, Vec3, Vec3A, Vec4};
+use glam::{Quat, Vec3};
 use std::{
+    f32::consts::FRAC_PI_2,
     path::PathBuf,
     time::{Duration, Instant},
 };
-use terminal_size::{Height, Width, terminal_size};
 
 use crate::{camera::Camera, framebuffer::Framebuffer, obj_loader::load, pipeline::Pipeline};
 
@@ -26,19 +27,15 @@ mod model;
 mod obj_loader;
 mod pipeline;
 mod raster;
-
-type Pos4 = Vec4;
-type Pos3 = Vec3A;
-type Pos2 = Vec2;
-type Face = (usize, usize, usize);
+mod types;
 
 const TARGET_FPS: u32 = 200;
 const REFRESH_RATE: f32 = 1.0 / TARGET_FPS as f32;
 const BACKGROUND: char = ' ';
 
-const MAX_CAM_DISTANCE: f32 = 30.0;
+const MAX_CAM_DISTANCE: f32 = 10.0;
 const MIN_CAM_DISTANCE: f32 = 1.0;
-const CAM_DISTANCE_STEP: f32 = 0.5;
+const CAM_DISTANCE_STEP: f32 = 0.1;
 
 const PITCH_SENSITIVITY: f32 = -0.1;
 const YAW_SENSITIVITY: f32 = 0.1;
@@ -85,11 +82,7 @@ fn main() -> Result<()> {
 
     let mut stdout = std::io::stdout();
 
-    let (Width(w), Height(h)) =
-        terminal_size().context("Couldn't get terminal size with terminal_size.")?;
-
-    let width = w as usize;
-    let height = h as usize;
+    let (width, height) = size().expect("Couldn't get the terminal size.");
 
     let fov = args.fov;
     let aspect_ratio = width as f32 / height as f32;
@@ -106,7 +99,7 @@ fn main() -> Result<()> {
         .with_context(|| format!("Couldn't load {}", path))?]);
 
     let camera = Camera::new();
-    let framebuffer = Framebuffer::new_with(BACKGROUND, width, height, BACKGROUND);
+    let framebuffer = Framebuffer::new_with(BACKGROUND, width.into(), height.into(), BACKGROUND);
     let mut pipeline = Pipeline::new(fov, aspect_ratio, near, far, objects, framebuffer, camera);
 
     let mut prev = Instant::now();
@@ -119,6 +112,7 @@ fn main() -> Result<()> {
         SetTitle("rview")
     )
     .context("Couldn't execute crossterm commands.")?;
+
     enable_raw_mode().context("Couldn't enter crossterm raw mode.")?;
     execute!(stdout, Hide).context("Couldn't hide cursor with crossterm.")?;
 
@@ -143,14 +137,13 @@ fn main() -> Result<()> {
                 }
                 Event::Mouse(mouse_event) => match mouse_event.kind {
                     MouseEventKind::ScrollDown => {
-                        if distance < MAX_CAM_DISTANCE {
-                            distance += CAM_DISTANCE_STEP;
-                        }
+                        distance = (distance + CAM_DISTANCE_STEP).min(MAX_CAM_DISTANCE);
                     }
                     MouseEventKind::ScrollUp => {
-                        if distance > MIN_CAM_DISTANCE {
-                            distance -= CAM_DISTANCE_STEP;
-                        }
+                        distance = (distance - CAM_DISTANCE_STEP).max(MIN_CAM_DISTANCE);
+                    }
+                    MouseEventKind::Down(MouseButton::Left) => {
+                        last_mouse_pos = (mouse_event.column as i32, mouse_event.row as i32);
                     }
                     MouseEventKind::Drag(MouseButton::Left) => {
                         let (new_x, new_y) = (mouse_event.column as i32, mouse_event.row as i32);
@@ -159,7 +152,10 @@ fn main() -> Result<()> {
                         let dy = new_y - old_y;
 
                         yaw += dx as f32 * YAW_SENSITIVITY;
-                        pitch += dy as f32 * PITCH_SENSITIVITY;
+
+                        if (pitch - dy as f32 * PITCH_SENSITIVITY) < FRAC_PI_2 {
+                            pitch -= dy as f32 * PITCH_SENSITIVITY;
+                        }
 
                         last_mouse_pos = (new_x, new_y);
                     }
@@ -174,6 +170,7 @@ fn main() -> Result<()> {
 
     execute!(stdout, Show).context("Couldn't show cursor with crossterm.")?;
     disable_raw_mode().context("Couldn't exit crossterm raw mode.")?;
+
     execute!(std::io::stdout(), LeaveAlternateScreen, DisableMouseCapture)
         .context("Couldn't execute crossterm commands.")?;
 
