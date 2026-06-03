@@ -7,7 +7,7 @@ use crossterm::{
     terminal::{Clear, ClearType},
 };
 
-use crate::Pos2;
+use crate::types::Pos2;
 
 pub trait Buffer {
     fn write_io<W>(&mut self, writer: &mut W) -> Result<()>

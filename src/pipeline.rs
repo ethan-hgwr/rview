@@ -4,8 +4,8 @@ use anyhow::Result;
 use glam::{Mat4, Vec3A, Vec4Swizzles};
 
 use crate::{
-    Framebuffer, Pos3, Pos4, camera::Camera, framebuffer::Buffer, model::Model, obj_loader::Object,
-    raster::fill_triangle,
+    Framebuffer, camera::Camera, framebuffer::Buffer, model::Model, obj_loader::Object,
+    raster::fill_triangle, types::Pos3, types::Pos4,
 };
 
 pub(crate) struct Pipeline<T> {

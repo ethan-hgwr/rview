@@ -1,4 +1,4 @@
-use crate::{Pos3, framebuffer::Framebuffer};
+use crate::{types::Pos3, framebuffer::Framebuffer};
 use glam::{Vec2, Vec3Swizzles};
 
 pub fn fill_triangle(

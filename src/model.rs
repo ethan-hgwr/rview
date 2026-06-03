@@ -1,4 +1,4 @@
-use crate::{Face, Pos4};
+use crate::{types::Face, types::Pos4};
 
 pub(crate) trait Model {
     fn get_points(&self) -> &[Pos4];
