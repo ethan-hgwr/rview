@@ -89,17 +89,18 @@ fn main() -> Result<()> {
     enable_raw_mode().context("Couldn't enter crossterm raw mode.")?;
     execute!(stdout, Hide).context("Couldn't hide cursor with crossterm.")?;
 
+    pipeline.update_radius(distance);
+    pipeline.rotate_cam_x(pitch);
+    pipeline.rotate_cam_y(yaw);
+    pipeline.render().context("Failed to render frame.")?;
+
     loop {
         let now = Instant::now();
 
         let _dt = now.duration_since(prev).as_secs_f32();
         let _t = timer.elapsed().as_secs_f32();
 
-        pipeline.update_radius(distance);
-        pipeline.rotate_cam_x(pitch);
-        pipeline.rotate_cam_y(yaw);
-
-        pipeline.render().context("Failed to render frame.")?;
+        let mut dirty = false;
 
         if poll(Duration::from_secs_f32(REFRESH_RATE))? {
             match read().context("Failed to read event with crossterm.")? {
@@ -111,12 +112,15 @@ fn main() -> Result<()> {
                 Event::Mouse(mouse_event) => match mouse_event.kind {
                     MouseEventKind::ScrollDown => {
                         distance = (distance + CAM_DISTANCE_STEP).min(MAX_CAM_DISTANCE);
+                        dirty = true;
                     }
                     MouseEventKind::ScrollUp => {
                         distance = (distance - CAM_DISTANCE_STEP).max(MIN_CAM_DISTANCE);
+                        dirty = true;
                     }
                     MouseEventKind::Down(MouseButton::Left) => {
                         last_mouse_pos = (mouse_event.column as i32, mouse_event.row as i32);
+                        dirty = true;
                     }
                     MouseEventKind::Drag(MouseButton::Left) => {
                         let (new_x, new_y) = (mouse_event.column as i32, mouse_event.row as i32);
@@ -131,11 +135,20 @@ fn main() -> Result<()> {
                         }
 
                         last_mouse_pos = (new_x, new_y);
+                        dirty = true;
                     }
                     _ => {}
                 },
                 _ => {}
             }
+        }
+
+        if dirty {
+            pipeline.update_radius(distance);
+            pipeline.rotate_cam_x(pitch);
+            pipeline.rotate_cam_y(yaw);
+
+            pipeline.render().context("Failed to render frame.")?;
         }
 
         prev = now;
