@@ -26,7 +26,7 @@ cargo run --release -- <path/to/model.obj>
 |---|---|
 | Mouse drag | Rotate camera |
 | Scroll up/down | Zoom in/out |
-| `C` | Quit |
+| `q` | Quit |
 
 ## Build With
 
