@@ -15,13 +15,15 @@ use crossterm::{
 use glam::{Quat, Vec3};
 use std::{
     f32::consts::FRAC_PI_2,
-    path::PathBuf,
     time::{Duration, Instant},
 };
 
-use crate::{camera::Camera, framebuffer::Framebuffer, obj_loader::load, pipeline::Pipeline};
+use crate::{
+    camera::Camera, cli::Cli, framebuffer::Framebuffer, obj_loader::load, pipeline::Pipeline,
+};
 
 mod camera;
+mod cli;
 mod framebuffer;
 mod model;
 mod obj_loader;
@@ -29,47 +31,18 @@ mod pipeline;
 mod raster;
 mod types;
 
-const TARGET_FPS: u32 = 200;
+const TARGET_FPS: u32 = 165;
 const REFRESH_RATE: f32 = 1.0 / TARGET_FPS as f32;
 const BACKGROUND: char = ' ';
+
+const EXIT_KEY: char = 'q';
 
 const MAX_CAM_DISTANCE: f32 = 10.0;
 const MIN_CAM_DISTANCE: f32 = 1.0;
 const CAM_DISTANCE_STEP: f32 = 0.1;
 
-const PITCH_SENSITIVITY: f32 = -0.1;
-const YAW_SENSITIVITY: f32 = 0.1;
-
-#[derive(Parser)]
-#[command(about = "A fast cli Wavefront (.obj) file rasterizer 🦀", long_about = None)]
-struct Cli {
-    /// File path
-    file_path: PathBuf,
-
-    /// Yaw of the camera
-    #[arg(long, default_value_t = 180.0f32.to_radians())]
-    yaw: f32,
-
-    /// Pitch of the camera
-    #[arg(long, default_value_t = 0.0)]
-    pitch: f32,
-
-    /// Fov
-    #[arg(long, default_value_t = 40f32.to_radians())]
-    fov: f32,
-
-    /// Near clipping plane
-    #[arg(long, default_value_t = 0.01)]
-    near: f32,
-
-    /// Far clipping plane
-    #[arg(long, default_value_t = 10.0)]
-    far: f32,
-
-    /// Distance of the camera from the origin
-    #[arg(short, long, default_value_t = 5.0)]
-    distance: f32,
-}
+const YAW_SENSITIVITY: f32 = 0.05;
+const PITCH_SENSITIVITY: f32 = -YAW_SENSITIVITY;
 
 fn main() -> Result<()> {
     let args = Cli::parse();
@@ -84,7 +57,7 @@ fn main() -> Result<()> {
 
     let (width, height) = size().expect("Couldn't get the terminal size.");
 
-    let fov = args.fov;
+    let fov = args.fov.to_radians();
     let aspect_ratio = width as f32 / height as f32;
 
     let near = args.near;
@@ -98,7 +71,7 @@ fn main() -> Result<()> {
     let objects = Box::new([load(path, Vec3::splat(1.0), Quat::IDENTITY, Vec3::ZERO)
         .with_context(|| format!("Couldn't load {}", path))?]);
 
-    let camera = Camera::new();
+    let camera = Camera::new_with(yaw, pitch, distance);
     let framebuffer = Framebuffer::new_with(BACKGROUND, width.into(), height.into(), BACKGROUND);
     let mut pipeline = Pipeline::new(fov, aspect_ratio, near, far, objects, framebuffer, camera);
 
@@ -131,7 +104,7 @@ fn main() -> Result<()> {
         if poll(Duration::from_secs_f32(REFRESH_RATE))? {
             match read().context("Failed to read event with crossterm.")? {
                 Event::Key(key_event) => {
-                    if key_event == KeyCode::Char('c').into() {
+                    if key_event == KeyCode::Char(EXIT_KEY).into() {
                         break;
                     }
                 }
