@@ -143,13 +143,9 @@ fn map_brightness_to_char(b: f32) -> char {
         0.7602, 0.7834, 0.8037, 0.9999,
     ];
 
-    let mut index = BRIGHTNESS_LEVELS.len() - 1; // default to last
-    for (i, &lvl) in BRIGHTNESS_LEVELS.iter().enumerate() {
-        if b <= lvl {
-            index = i;
-            break;
-        }
-    }
+    let index = BRIGHTNESS_LEVELS
+        .partition_point(|&lvl| lvl < b)
+        .min(BRIGHTNESS_LEVELS.len() - 1);
 
     *PALETTE.get(index).unwrap_or(&'▓')
 }
