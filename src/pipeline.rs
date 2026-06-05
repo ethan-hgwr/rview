@@ -4,8 +4,8 @@ use anyhow::Result;
 use glam::{Mat4, Vec3A, Vec4Swizzles};
 
 use crate::{
-    Framebuffer, camera::Camera, framebuffer::Buffer, model::Model, obj_loader::Object,
-    raster::fill_triangle, types::Pos3, types::Pos4,
+    Framebuffer, camera::{Camera, CameraState}, framebuffer::Buffer, model::Model, obj_loader::Object,
+    raster::fill_triangle, types::{Pos3, Pos4},
 };
 
 pub(crate) struct Pipeline<T> {
@@ -48,19 +48,10 @@ fn project_to_screen(point: Pos4, framebuffer_width: usize, framebuffer_height: 
 }
 
 impl Pipeline<char> {
-    #[inline(always)]
-    pub fn rotate_cam_x(&mut self, pitch: f32) {
-        self.camera.rotate_x(pitch);
-    }
-
-    #[inline(always)]
-    pub fn rotate_cam_y(&mut self, yaw: f32) {
-        self.camera.rotate_y(yaw);
-    }
-
-    #[inline(always)]
-    pub fn update_radius(&mut self, radius: f32) {
-        self.camera.update_radius(radius);
+    pub fn apply_camera_state(&mut self, state: &CameraState) {
+        self.camera.update_radius(state.radius());
+        self.camera.rotate_x(state.pitch());
+        self.camera.rotate_y(state.yaw());
     }
 
     pub fn render(&mut self) -> Result<()> {
@@ -143,9 +134,17 @@ fn map_brightness_to_char(b: f32) -> char {
         0.7602, 0.7834, 0.8037, 0.9999,
     ];
 
-    let index = BRIGHTNESS_LEVELS
-        .partition_point(|&lvl| lvl < b)
-        .min(BRIGHTNESS_LEVELS.len() - 1);
+    // let index = BRIGHTNESS_LEVELS
+    //     .partition_point(|&lvl| lvl < b)
+    //     .min(BRIGHTNESS_LEVELS.len() - 1);
+
+    let mut index = BRIGHTNESS_LEVELS.len() - 1; // default to last
+    for (i, &lvl) in BRIGHTNESS_LEVELS.iter().enumerate() {
+        if b <= lvl {
+            index = i;
+            break;
+        }
+    }
 
     *PALETTE.get(index).unwrap_or(&'▓')
 }
