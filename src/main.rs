@@ -167,13 +167,11 @@ fn run(pipeline: &mut Pipeline<char>, camera_state: &mut CameraState, mode: &Mod
                 }
             }
             Mode::Animation(anim) => {
-                if poll(Duration::ZERO)? {
-                    if let Event::Key(key) = read().context("Failed to read event.")? {
-                        if key == KeyCode::Char(EXIT_KEY).into() {
+                if poll(Duration::ZERO)?
+                    && let Event::Key(key) = read().context("Failed to read event.")?
+                        && key == KeyCode::Char(EXIT_KEY).into() {
                             break;
                         }
-                    }
-                }
 
                 anim.update(camera_state, dt);
                 dirty = true;
