@@ -20,7 +20,7 @@ lto = "fat"
 opt-level = 3
 codegen-units = 1
 incremental = false
-debug = true
+debug = false
 
 [profile.samply]
 inherits = "release"
