@@ -8,6 +8,9 @@ use crate::{
 
 /// Number of seconds to run the bechmark
 const TIMEOUT: f32 = 5.0;
+const SPEED: f32 = 3.0;
+const PITCH: f32 = 20.0;
+const DISTANCE: f32 = 2.0;
 
 pub(crate) struct Benchmark<A>
 where
@@ -19,7 +22,7 @@ where
 
 impl Benchmark<Turntable> {
     pub(crate) fn new() -> Self {
-        let config = TurntableConfig::new(3.0, 20.0, 2.0);
+        let config = TurntableConfig::new(SPEED, PITCH, DISTANCE);
 
         Self {
             animation: Turntable::new(config),
