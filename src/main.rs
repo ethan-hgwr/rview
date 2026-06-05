@@ -36,6 +36,7 @@ mod mode;
 mod model;
 mod motion;
 mod obj_loader;
+mod palette;
 mod pipeline;
 mod raster;
 mod types;
@@ -169,9 +170,10 @@ fn run(pipeline: &mut Pipeline<char>, camera_state: &mut CameraState, mode: &Mod
             Mode::Animation(anim) => {
                 if poll(Duration::ZERO)?
                     && let Event::Key(key) = read().context("Failed to read event.")?
-                        && key == KeyCode::Char(EXIT_KEY).into() {
-                            break;
-                        }
+                    && key == KeyCode::Char(EXIT_KEY).into()
+                {
+                    break;
+                }
 
                 anim.update(camera_state, dt);
                 dirty = true;
