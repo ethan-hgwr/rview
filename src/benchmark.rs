@@ -1,16 +1,7 @@
 use crate::{
     camera::CameraState,
-    motion::{
-        animation::Animation,
-        turntable::{Turntable, TurntableConfig},
-    },
+    motion::{Animation, turntable::Turntable},
 };
-
-/// Number of seconds to run the bechmark
-const TIMEOUT: f32 = 5.0;
-const SPEED: f32 = 3.0;
-const PITCH: f32 = 20.0;
-const DISTANCE: f32 = 2.0;
 
 pub(crate) struct Benchmark<A>
 where
@@ -22,11 +13,9 @@ where
 
 impl Benchmark<Turntable> {
     pub(crate) fn new() -> Self {
-        let config = TurntableConfig::new(SPEED, PITCH, DISTANCE);
-
         Self {
-            animation: Turntable::new(config),
-            timeout: TIMEOUT,
+            animation: Turntable::new(Benchmark::SPEED),
+            timeout: Benchmark::TIMEOUT,
         }
     }
 
