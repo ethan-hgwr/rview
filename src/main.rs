@@ -20,10 +20,11 @@ use std::{
 
 use crate::{
     camera::{Camera, CameraState},
-    cli::{Cli, build_mode},
+    cli::{Cli, resolve_cli},
+    constants::*,
     framebuffer::Framebuffer,
     mode::Mode,
-    motion::animation::Animation,
+    motion::Animation,
     obj_loader::load,
     pipeline::Pipeline,
 };
@@ -31,7 +32,9 @@ use crate::{
 mod benchmark;
 mod camera;
 mod cli;
+mod constants;
 mod framebuffer;
+mod loaders;
 mod mode;
 mod model;
 mod motion;
@@ -40,23 +43,11 @@ mod palette;
 mod pipeline;
 mod raster;
 mod types;
-
-const TARGET_FPS: u32 = 165;
-const REFRESH_RATE: f32 = 1.0 / TARGET_FPS as f32;
-const BACKGROUND: char = ' ';
-
-const EXIT_KEY: char = 'q';
-
-const MAX_CAM_DISTANCE: f32 = 10.0;
-const MIN_CAM_DISTANCE: f32 = 1.0;
-const CAM_DISTANCE_STEP: f32 = 0.1;
-
-const YAW_SENSITIVITY: f32 = 0.05;
-const PITCH_SENSITIVITY: f32 = -YAW_SENSITIVITY;
+mod utils;
 
 fn main() -> Result<()> {
     let args = Cli::parse();
-    let mode = build_mode(&args).context("Couldn't build execution mode.")?;
+    let (mode, mut camera_state) = resolve_cli(&args).context("Couldn't resolve the cli.")?;
 
     let mut stdout = std::io::stdout();
     let (width, height) = size().context("Couldn't get the terminal size.")?;
@@ -67,12 +58,6 @@ fn main() -> Result<()> {
         .context("Cannot convert path to string.")?;
     let objects = Box::new([load(path, Vec3::splat(1.0), Quat::IDENTITY, Vec3::ZERO)
         .with_context(|| format!("Couldn't load {}", path))?]);
-
-    let mut camera_state = CameraState::new(
-        args.yaw.to_radians(),
-        args.pitch.to_radians(),
-        args.distance,
-    );
 
     let mut pipeline = Pipeline::new(
         args.fov.to_radians(),
@@ -130,15 +115,13 @@ fn run(pipeline: &mut Pipeline<char>, camera_state: &mut CameraState, mode: &Mod
                         Event::Mouse(mouse) => match mouse.kind {
                             MouseEventKind::ScrollDown => {
                                 camera_state.update_radius(
-                                    (camera_state.radius() + CAM_DISTANCE_STEP)
-                                        .min(MAX_CAM_DISTANCE),
+                                    (camera_state.radius() + CAM_RADIUS_STEP).min(MAX_CAM_RADIUS),
                                 );
                                 dirty = true;
                             }
                             MouseEventKind::ScrollUp => {
                                 camera_state.update_radius(
-                                    (camera_state.radius() - CAM_DISTANCE_STEP)
-                                        .max(MIN_CAM_DISTANCE),
+                                    (camera_state.radius() - CAM_RADIUS_STEP).max(MIN_CAM_RADIUS),
                                 );
                                 dirty = true;
                             }
