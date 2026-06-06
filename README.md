@@ -1,7 +1,7 @@
 # rview
 
 <div align="center">
-  <img alt="Utah teapot demo" src="gif/teapot_compressed.gif" height="50%" width="50%">
+  <img alt="Utah teapot demo" src="gif/teapot_compressed.gif" height="70%" width="70%">
 </div>
 
 A software rasterizer written in Rust that renders `.obj` models as ASCII art directly in your terminal.
