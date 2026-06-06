@@ -7,7 +7,7 @@ use glam::{Mat4, Quat, Vec3, Vec3A, Vec4};
 use obj::{Obj, Vertex, load_obj};
 use rayon::prelude::*;
 
-use crate::{MIN_CAM_DISTANCE, model::Model, types::Face, types::Pos4};
+use crate::{MIN_CAM_RADIUS, model::Model, types::Face, types::Pos4};
 
 const SIGMA: f32 = 0.99;
 
@@ -39,7 +39,7 @@ pub fn load(
         return Err(io::Error::other("Couldn't compute the max vertex."));
     };
 
-    let factor = (MIN_CAM_DISTANCE * SIGMA) / max_len_sq.sqrt();
+    let factor = (MIN_CAM_RADIUS * SIGMA) / max_len_sq.sqrt();
 
     for v in &model.vertices {
         let pos = Vec3A::from_array(v.position) * factor;
