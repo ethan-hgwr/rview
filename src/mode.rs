@@ -1,6 +1,6 @@
 use crate::{
     benchmark::Benchmark,
-    motion::{animation::Animation, turntable::Turntable},
+    motion::{Animation, turntable::Turntable},
 };
 
 pub(crate) enum Mode {
