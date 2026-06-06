@@ -57,6 +57,16 @@ impl Camera {
     }
 }
 
+impl Default for CameraState {
+    fn default() -> Self {
+        Self {
+            yaw: CameraState::DEFAULT_YAW,
+            pitch: CameraState::DEFAULT_PITCH,
+            radius: CameraState::DEFAULT_RADIUS,
+        }
+    }
+}
+
 impl CameraState {
     pub fn new(yaw: f32, pitch: f32, radius: f32) -> Self {
         Self { yaw, pitch, radius }
