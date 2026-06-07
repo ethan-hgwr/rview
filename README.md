@@ -4,39 +4,62 @@
   <img alt="Utah teapot demo" src="gif/teapot_compressed.gif" height="70%" width="70%">
 </div>
 
-A software rasterizer written in Rust that renders `.obj` models as ASCII art directly in your terminal.
+A software rasterizer written in Rust that renders 3D models as ASCII art directly in your terminal.
 
 ## Features
 
-- 3D transformations: scale, rotate, translate
-- Perspective projection
-- Triangle rasterization
-- Diffuse lighting based on face normals, tied to the camera position
+- Perspective projection and triangle rasterization
+- Turntable animation mode with configurable speed
+- Built-in benchmark mode for performance profiling
+- Multi-format model loading: `.obj`, `.gltf`, `.glb`, `.stl`
 
 ## Usage
 
-> [!IMPORTANT]
-> Only works with triangulated models!
-
 ```bash
-cargo run --release -- <path/to/model.obj>
+cargo run --release -- [OPTIONS] <FILE_PATH> [COMMAND]
 ```
 
-| Control | Actions |
+For more information run:
+
+```bash
+cargo run --release -- -h
+```
+
+### Modes
+
+| Mode | Description | Example |
+|---|---|---|
+| `interactive` | Control the camera manually (default) | `rview model.obj interactive` |
+| `turntable` | Automatically rotate the model | `rview model.obj turntable --speed 2.0` |
+| `benchmark` | Run a fixed animation and exit | `rview model.obj --bench` |
+
+### Controls *(interactive mode)*
+
+| Control | Action |
 |---|---|
 | Mouse drag | Rotate camera |
 | Scroll up/down | Zoom in/out |
 | `q` | Quit |
 
+## Supported Formats
+
+| Format | Extension |
+|---|---|
+| Wavefront OBJ | `.obj` |
+| GL Transmission Format | `.gltf`, `.glb` |
+| Stereolithography | `.stl` |
+
 ## Build With
 
-- [`rust`](https://rust-lang.org/) - Language
-- [`crossterm`](https://github.com/crossterm-rs/crossterm) - cross-platform terminal manipulation (input events, cursor, rendering)
-- [`glam`](https://github.com/bitshifter/glam-rs) - SIMD-accelerated linear algebra (vectors, matrices)
-- [`obj-rs`](https://github.com/simnalamburt/obj-rs) - `.obj` file parsing
-- [`clap`](https://github.com/clap-rs/clap) - command-line argument parsing
-- [`anyhow`](https://github.com/dtolnay/anyhow) - ergonomic error handling
-- [`rayon`](https://github.com/rayon-rs/rayon) - data-parallel vertex processing
+- [`rust`](https://rust-lang.org/): Language
+- [`crossterm`](https://github.com/crossterm-rs/crossterm): cross-platform terminal manipulation
+- [`glam`](https://github.com/bitshifter/glam-rs): SIMD-accelerated linear algebra
+- [`tobj`](https://github.com/Twinklebear/tobj): fast `.obj` file parsing
+- [`gltf`](https://github.com/gltf-rs/gltf): `.gltf` and `.glb` file parsing
+- [`stl_io`](https://github.com/hmeyer/stl_io): `.stl` file parsing
+- [`clap`](https://github.com/clap-rs/clap): command-line argument parsing
+- [`anyhow`](https://github.com/dtolnay/anyhow): ergonomic error handling
+- [`rayon`](https://github.com/rayon-rs/rayon): data-parallel processing
 
 ## Assets
 
