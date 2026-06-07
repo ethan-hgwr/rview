@@ -72,7 +72,7 @@ impl CameraState {
         Self { yaw, pitch, radius }
     }
 
-    pub fn update(&mut self, yaw: f32, pitch: f32, radius: f32) {
+    pub fn _update(&mut self, yaw: f32, pitch: f32, radius: f32) {
         self.update_yaw(yaw);
         self.update_pitch(pitch);
         self.update_radius(radius);
