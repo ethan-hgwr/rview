@@ -12,7 +12,6 @@ use crossterm::{
         size,
     },
 };
-use glam::{Quat, Vec3};
 use std::{
     f32::consts::FRAC_PI_2,
     time::{Duration, Instant},
@@ -23,10 +22,11 @@ use crate::{
     cli::{Cli, resolve_cli},
     constants::*,
     framebuffer::Framebuffer,
+    loaders::load,
     mode::Mode,
     motion::Animation,
-    obj_loader::load,
     pipeline::Pipeline,
+    preprocessors::{Preprocessor, cam_normalizer::CamNormalizer},
 };
 
 mod benchmark;
@@ -36,11 +36,10 @@ mod constants;
 mod framebuffer;
 mod loaders;
 mod mode;
-mod model;
 mod motion;
-mod obj_loader;
 mod palette;
 mod pipeline;
+mod preprocessors;
 mod raster;
 mod types;
 mod utils;
@@ -56,22 +55,26 @@ fn main() -> Result<()> {
         .file_path
         .to_str()
         .context("Cannot convert path to string.")?;
-    let objects = Box::new([load(path, Vec3::splat(1.0), Quat::IDENTITY, Vec3::ZERO)
-        .with_context(|| format!("Couldn't load {}", path))?]);
+
+    let mesh = load(path).with_context(|| format!("Couldn't load {}", path))?;
+
+    let preprocessors: Vec<Box<dyn Preprocessor>> = vec![Box::new(CamNormalizer)];
 
     let mut pipeline = Pipeline::new(
         args.fov.to_radians(),
         width as f32 / height as f32,
         args.near,
         args.far,
-        objects,
+        vec![mesh],
         Framebuffer::new_with(BACKGROUND, width.into(), height.into(), BACKGROUND),
+        &preprocessors,
         Camera::new_with(
             camera_state.yaw(),
             camera_state.pitch(),
             camera_state.radius(),
         ),
-    );
+    )
+    .context("Couldn't build pipeline.")?;
 
     execute!(
         stdout,
@@ -103,7 +106,8 @@ fn run(pipeline: &mut Pipeline<char>, camera_state: &mut CameraState, mode: &Mod
 
     loop {
         let now = Instant::now();
-        let dt = now.duration_since(prev).as_secs_f32().min(REFRESH_RATE);
+        let dt = now.duration_since(prev).as_secs_f32();
+        prev = now;
 
         let mut dirty = false;
 
@@ -181,8 +185,6 @@ fn run(pipeline: &mut Pipeline<char>, camera_state: &mut CameraState, mode: &Mod
         if elapsed < frame_time {
             std::thread::sleep(frame_time - elapsed);
         }
-
-        prev = now;
     }
 
     Ok(())
