@@ -9,8 +9,13 @@ pub(crate) struct Camera {
 }
 
 pub(crate) struct CameraState {
+    /// Yaw angle in radians.
     yaw: f32,
+
+    /// Pitch angle in radians.
     pitch: f32,
+
+    /// Distance from the origin.
     radius: f32,
 }
 
