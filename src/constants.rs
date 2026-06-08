@@ -34,14 +34,20 @@ pub(crate) const MAX_CAM_RADIUS: f32 = 10.0;
 pub(crate) const CAM_RADIUS_STEP: f32 = 0.1;
 
 impl CameraState {
-    /// Default yaw angle in radians.
-    pub(crate) const DEFAULT_YAW: f32 = 180.0_f32.to_radians();
+    /// Default yaw angle in degrees.
+    pub(crate) const DEFAULT_YAW: f32 = 180.0;
 
-    /// Default pitch angle in radians.
-    pub(crate) const DEFAULT_PITCH: f32 = 0.0_f32.to_radians();
+    /// Default pitch angle in degrees.
+    pub(crate) const DEFAULT_PITCH: f32 = 0.0;
 
     /// Default distance from the origin.
     pub(crate) const DEFAULT_RADIUS: f32 = 2.0;
+
+    /// Max pitch angle in degrees.
+    pub(crate) const MIN_PITCH: f32 = -90.0;
+
+    /// Max pitch angle in degrees.
+    pub(crate) const MAX_PITCH: f32 = 90.0;
 }
 
 /* --- Projection --- */
