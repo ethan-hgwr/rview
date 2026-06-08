@@ -61,6 +61,10 @@ cargo run --release -- -h
 - [`anyhow`](https://github.com/dtolnay/anyhow): ergonomic error handling
 - [`rayon`](https://github.com/rayon-rs/rayon): data-parallel processing
 
+## AI Disclosure
+
+This project was developed with the assistance of Claude Sonnet 4.6 (Anthropic) for code review, optimization, and design decisions. All code was written, tested, and validated by the author.
+
 ## Assets
 
 - **Utah Teapot**: [Sketchfab](https://sketchfab.com/3d-models/utah-teapot-92f31e2028244c4b8ef6cbc07738aee5)
