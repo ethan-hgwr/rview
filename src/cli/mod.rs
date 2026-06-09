@@ -16,7 +16,7 @@ use crate::{
 mod command;
 
 #[derive(Parser)]
-#[command(about = "Render .obj models as ASCII art in your terminal, with real-time camera rotation and zoom. Built with Rust 🦀", long_about = None, allow_negative_numbers = true)]
+#[command(about = "Render 3D models as ASCII art in your terminal, with real-time camera rotation, zoom, and animation. Built with Rust 🦀", long_about = None, allow_negative_numbers = true)]
 pub(crate) struct Cli {
     /// File path
     pub(crate) file_path: PathBuf,
