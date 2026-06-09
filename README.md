@@ -1,10 +1,11 @@
 # rview
 
 <div align="center">
-  <img alt="Utah teapot demo" src="gif/teapot_compressed.gif" height="70%" width="70%">
-</div>
+  <img alt="Suzanne demo" src="gif/suzanne.gif" width="45%">
+  <img alt="Utah teapot demo" src="gif/utah_teapot.gif" width="45%">
 
 A software rasterizer written in Rust that renders 3D models as ASCII art directly in your terminal.
+</div>
 
 ## Features
 
@@ -67,8 +68,9 @@ This project was developed with the assistance of Claude Sonnet 4.6 (Anthropic) 
 
 ## Assets
 
-- **Utah Teapot**: [Sketchfab](https://sketchfab.com/3d-models/utah-teapot-92f31e2028244c4b8ef6cbc07738aee5)
-- **Suzanne**: Blender
+- **Suzanne**: [Blender](https://en.wikipedia.org/wiki/Blender_(software)#Suzanne)
+- **Modified Utah Teapot** (2025 revision by Cem Yuksel): [University of Utah](https://graphics.cs.utah.edu/teapot/).
+  A historic 3D model developed at the University of Utah, used in accordance with their [terms of use](https://graphics.cs.utah.edu/teapot/).
 
 ## License
 
