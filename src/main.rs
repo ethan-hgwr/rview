@@ -141,7 +141,7 @@ fn run(pipeline: &mut Pipeline<char>, camera_state: &mut CameraState, mode: &Mod
 
                                 let new_pitch =
                                     camera_state.pitch() - dy as f32 * PITCH_SENSITIVITY;
-                                if new_pitch < FRAC_PI_2 {
+                                if -FRAC_PI_2 < new_pitch && new_pitch < FRAC_PI_2 {
                                     camera_state.update_pitch(new_pitch);
                                 }
 
