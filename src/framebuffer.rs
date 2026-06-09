@@ -1,11 +1,7 @@
 use std::{f32, io};
 
 use anyhow::{Context, Result};
-use crossterm::{
-    cursor::MoveTo,
-    execute,
-    terminal::{Clear, ClearType},
-};
+use crossterm::{cursor::MoveTo, execute, style::Print};
 
 use crate::types::Pos2;
 
@@ -90,9 +86,6 @@ impl Buffer for Framebuffer<char> {
     where
         W: io::Write,
     {
-        execute!(writer, MoveTo(0, 0), Clear(ClearType::FromCursorDown))
-            .context("Couldn't execute crossterm commands.")?;
-
         let mut frame = String::with_capacity(self.width * self.height + (self.height - 1));
 
         for (row_idx, row) in self.pixels.chunks_exact(self.width).enumerate() {
@@ -105,7 +98,8 @@ impl Buffer for Framebuffer<char> {
             }
         }
 
-        write!(writer, "{}", frame)?;
+        execute!(writer, MoveTo(0, 0), Print(frame)).context("Couldn't write frame.")?;
+
         writer.flush().context("Couldn't flush the terminal.")?;
 
         Ok(())
