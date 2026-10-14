@@ -26,7 +26,7 @@ use crate::{
     mode::Mode,
     motion::Animation,
     pipeline::Pipeline,
-    preprocessors::{Preprocessor, cam_normalizer::CamNormalizer},
+    preprocessors::{Preprocessor, cam_normalizer::CamNormalizer, center_model::CenterModel},
 };
 
 mod benchmark;
@@ -58,7 +58,8 @@ fn main() -> Result<()> {
 
     let mesh = load(path).with_context(|| format!("Couldn't load {}", path))?;
 
-    let preprocessors: Vec<Box<dyn Preprocessor>> = vec![Box::new(CamNormalizer)];
+    let preprocessors: Vec<Box<dyn Preprocessor>> =
+        vec![Box::new(CenterModel), Box::new(CamNormalizer)];
 
     let mut pipeline = Pipeline::new(
         args.fov.to_radians(),
