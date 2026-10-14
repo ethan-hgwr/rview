@@ -1,4 +1,4 @@
-use std::{f32, io};
+use std::io;
 
 use anyhow::{Context, Result};
 use crossterm::{cursor::MoveTo, execute, style::Print};
@@ -94,6 +94,7 @@ impl Buffer for Framebuffer<char> {
             }
 
             if row_idx + 1 < self.height {
+                frame.push('\r');
                 frame.push('\n');
             }
         }
