@@ -4,12 +4,13 @@
   <img alt="Suzanne demo" src="gif/suzanne.gif" width="45%">
   <img alt="Utah teapot demo" src="gif/utah_teapot.gif" width="45%">
 
-A software rasterizer written in Rust that renders 3D models as ASCII art directly in your terminal.
+A software rasterizer written in Rust that renders shaded 3D models directly in your terminal using solid block characters.
 </div>
 
 ## Features
 
 - Perspective projection and triangle rasterization
+- Optional high-resolution, shaded desktop viewer (`--gui`)
 - Turntable animation mode with configurable speed
 - Built-in benchmark mode for performance profiling
 - Multi-format model loading: `.obj`, `.gltf`, `.glb`, `.stl`
@@ -18,6 +19,12 @@ A software rasterizer written in Rust that renders 3D models as ASCII art direct
 
 ```bash
 cargo run --release -- [OPTIONS] <FILE_PATH> [COMMAND]
+```
+
+For a higher-resolution desktop viewer instead of the terminal view:
+
+```bash
+cargo run --release -- --gui <FILE_PATH>
 ```
 
 For more information run:
@@ -39,8 +46,12 @@ cargo run --release -- -h
 | Control | Action |
 |---|---|
 | Mouse drag | Rotate camera |
+| Arrow keys | Rotate camera |
 | Scroll up/down | Zoom in/out |
 | `q` | Quit |
+
+In the desktop viewer, drag with the left mouse button or use the arrow keys to rotate,
+scroll to zoom, and press `Esc` or `q` to close.
 
 ## Supported Formats
 
@@ -58,6 +69,7 @@ cargo run --release -- -h
 - [`tobj`](https://github.com/Twinklebear/tobj): fast `.obj` file parsing
 - [`gltf`](https://github.com/gltf-rs/gltf): `.gltf` and `.glb` file parsing
 - [`stl_io`](https://github.com/hmeyer/stl_io): `.stl` file parsing
+- [`minifb`](https://github.com/emoon/rust_minifb): lightweight desktop model viewer
 - [`clap`](https://github.com/clap-rs/clap): command-line argument parsing
 - [`anyhow`](https://github.com/dtolnay/anyhow): ergonomic error handling
 - [`rayon`](https://github.com/rayon-rs/rayon): data-parallel processing

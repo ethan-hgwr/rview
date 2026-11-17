@@ -16,10 +16,14 @@ use crate::{
 mod command;
 
 #[derive(Parser)]
-#[command(about = "Render 3D models as ASCII art in your terminal, with real-time camera rotation, zoom, and animation. Built with Rust 🦀", long_about = None, allow_negative_numbers = true)]
+#[command(about = "Render 3D models in the terminal or a desktop window, with real-time rotation and zoom. Built with Rust 🦀", long_about = None, allow_negative_numbers = true)]
 pub(crate) struct Cli {
     /// File path
     pub(crate) file_path: PathBuf,
+
+    /// Open the model in a desktop window
+    #[arg(long)]
+    pub(crate) gui: bool,
 
     /// Fov in degrees
     #[arg(long, default_value_t = Cli::DEFAULT_FOV)]
