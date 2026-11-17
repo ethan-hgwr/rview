@@ -65,8 +65,8 @@ impl Camera {
 impl Default for CameraState {
     fn default() -> Self {
         Self {
-            yaw: CameraState::DEFAULT_YAW,
-            pitch: CameraState::DEFAULT_PITCH,
+            yaw: CameraState::DEFAULT_YAW.to_radians(),
+            pitch: CameraState::DEFAULT_PITCH.to_radians(),
             radius: CameraState::DEFAULT_RADIUS,
         }
     }

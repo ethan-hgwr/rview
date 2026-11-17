@@ -7,7 +7,7 @@ use crate::{
     camera::{Camera, CameraState},
     framebuffer::{Buffer, Framebuffer},
     loaders::Mesh,
-    palette::map_brightness_to_char,
+    palette::{map_brightness_to_char, map_brightness_to_rgb},
     preprocessors::Preprocessor,
     raster::fill_triangle,
 };
@@ -104,16 +104,36 @@ where
             camera,
         })
     }
+
+    pub fn pixels(&self) -> &[T] {
+        &self.framebuffer.pixels
+    }
 }
 
-impl Pipeline<char> {
+pub(crate) trait Pixel: Copy {
+    fn from_brightness(brightness: f32) -> Self;
+}
+
+impl Pixel for char {
+    fn from_brightness(brightness: f32) -> Self {
+        map_brightness_to_char(brightness)
+    }
+}
+
+impl Pixel for u32 {
+    fn from_brightness(brightness: f32) -> Self {
+        map_brightness_to_rgb(brightness)
+    }
+}
+
+impl<T: Pixel> Pipeline<T> {
     pub fn apply_camera_state(&mut self, state: &CameraState) {
         self.camera.update_radius(state.radius());
         self.camera.rotate_x(state.pitch());
         self.camera.rotate_y(state.yaw());
     }
 
-    pub fn render(&mut self) -> Result<()> {
+    fn render_frame(&mut self) {
         self.framebuffer.clear();
 
         let view_matrix = *self.camera.get_view_matrix();
@@ -145,7 +165,7 @@ impl Pipeline<char> {
                 }
 
                 let brightness = normal.dot(light_dir).clamp(0.0, 1.0);
-                let shade = map_brightness_to_char(brightness);
+                let shade = T::from_brightness(brightness);
 
                 let pa = project_to_screen(mesh.clip_verts[i0], width, height);
                 let pb = project_to_screen(mesh.clip_verts[i1], width, height);
@@ -154,8 +174,20 @@ impl Pipeline<char> {
                 fill_triangle(&mut self.framebuffer, pa, pb, pc, shade);
             }
         }
+    }
+}
 
+impl Pipeline<char> {
+    pub fn render(&mut self) -> Result<()> {
+        self.render_frame();
         self.framebuffer.write_io(&mut stdout())
+    }
+}
+
+impl Pipeline<u32> {
+    pub fn render_pixels(&mut self) -> Result<()> {
+        self.render_frame();
+        Ok(())
     }
 }
 

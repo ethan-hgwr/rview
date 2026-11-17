@@ -1,12 +1,12 @@
 use crate::{framebuffer::Framebuffer, types::Pos3};
 use glam::{Vec2, Vec3Swizzles};
 
-pub fn fill_triangle(
-    framebuffer: &mut Framebuffer<char>,
+pub fn fill_triangle<P: Copy>(
+    framebuffer: &mut Framebuffer<P>,
     p0: Pos3, // Pos3 includes .z
     p1: Pos3,
     p2: Pos3,
-    shade: char,
+    shade: P,
 ) {
     let area = edge_function(p0.xy(), p1.xy(), p2.xy());
 

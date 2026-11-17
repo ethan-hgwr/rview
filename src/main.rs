@@ -34,6 +34,7 @@ mod camera;
 mod cli;
 mod constants;
 mod framebuffer;
+mod gui;
 mod loaders;
 mod mode;
 mod motion;
@@ -48,9 +49,6 @@ fn main() -> Result<()> {
     let args = Cli::parse();
     let (mode, mut camera_state) = resolve_cli(&args).context("Couldn't resolve the cli.")?;
 
-    let mut stdout = std::io::stdout();
-    let (width, height) = size().context("Couldn't get the terminal size.")?;
-
     let path = args
         .file_path
         .to_str()
@@ -61,9 +59,34 @@ fn main() -> Result<()> {
     let preprocessors: Vec<Box<dyn Preprocessor>> =
         vec![Box::new(CenterModel), Box::new(CamNormalizer)];
 
+    if args.gui {
+        let width = 1024;
+        let height = 768;
+        let mut pipeline = Pipeline::new(
+            args.fov.to_radians(),
+            width as f32 / height as f32,
+            args.near,
+            args.far,
+            vec![mesh],
+            Framebuffer::new_with(0, width, height, 0x10141D),
+            &preprocessors,
+            Camera::new_with(
+                camera_state.yaw(),
+                camera_state.pitch(),
+                camera_state.radius(),
+            ),
+        )
+        .context("Couldn't build pipeline.")?;
+
+        return gui::run(&mut pipeline, &mut camera_state, &mode);
+    }
+
+    let mut stdout = std::io::stdout();
+    let (width, height) = size().context("Couldn't get the terminal size.")?;
+
     let mut pipeline = Pipeline::new(
         args.fov.to_radians(),
-        width as f32 / height as f32,
+        width as f32 / (height as f32 * 2.0),
         args.near,
         args.far,
         vec![mesh],
@@ -116,7 +139,27 @@ fn run(pipeline: &mut Pipeline<char>, camera_state: &mut CameraState, mode: &Mod
             Mode::Interactive => {
                 if poll(Duration::ZERO)? {
                     match read().context("Failed to read event.")? {
-                        Event::Key(key) if key == KeyCode::Char(EXIT_KEY).into() => break,
+                        Event::Key(key) => match key.code {
+                            KeyCode::Char(EXIT_KEY) => break,
+                            KeyCode::Left => {
+                                camera_state.update_yaw(camera_state.yaw() - YAW_SENSITIVITY * 4.0);
+                                dirty = true;
+                            }
+                            KeyCode::Right => {
+                                camera_state.update_yaw(camera_state.yaw() + YAW_SENSITIVITY * 4.0);
+                                dirty = true;
+                            }
+                            KeyCode::Up | KeyCode::Down => {
+                                let direction = if key.code == KeyCode::Up { 1.0 } else { -1.0 };
+                                let pitch =
+                                    camera_state.pitch() + direction * PITCH_SENSITIVITY * 4.0;
+                                if -FRAC_PI_2 < pitch && pitch < FRAC_PI_2 {
+                                    camera_state.update_pitch(pitch);
+                                    dirty = true;
+                                }
+                            }
+                            _ => {}
+                        },
                         Event::Mouse(mouse) => match mouse.kind {
                             MouseEventKind::ScrollDown => {
                                 camera_state.update_radius(
